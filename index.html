@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Spin - Elegant Name Picker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-dark: #5649c0;
+            --secondary: #00cec9;
+            --dark: #2d3436;
+            --darker: #1e272e;
+            --light: #f5f6fa;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: linear-gradient(145deg, #2d3436, #1e272e);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .input-area {
+            margin-bottom: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--light);
+            font-size: 1rem;
+            resize: vertical;
+            transition: border 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn i {
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--dark);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #00a884;
+            transform: translateY(-2px);
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin: 0 auto;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pointer-container {
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            z-index: 10;
+            filter: drop-shadow(0 0 10px rgba(253, 121, 168, 0.6));
+        }
+
+        .pointer {
+            width: 0;
+            height: 0;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-left: 30px solid var(--accent);
+            position: relative;
+        }
+
+        .pointer::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -25px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--warning);
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            box-shadow: 0 0 10px var(--warning);
+        }
+
+        .result-container {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .result {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), var(--warning));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .winner {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .list-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .list-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .list-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        li:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: translateX(5px);
+        }
+
+        .selected-item {
+            border-left: 3px solid var(--accent);
+            background: rgba(253, 121, 168, 0.1);
+        }
+
+        .highlight {
+            animation: highlight 1.5s infinite;
+            font-weight: 600;
+        }
+
+        @keyframes highlight {
+            0% { background: rgba(253, 121, 168, 0.1); }
+            50% { background: rgba(253, 121, 168, 0.3); }
+            100% { background: rgba(253, 121, 168, 0.1); }
+        }
+
+        .spin-btn {
+            width: 100%;
+            padding: 1.2rem;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.6);
+        }
+
+        .spin-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            opacity: 0;
+            z-index: 1000;
+            animation: confetti 3s ease-out;
+        }
+
+        @keyframes confetti {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            position: relative;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--secondary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab:hover {
+            color: var(--light);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-star"></i> Lucky Spin</h1>
+            <p class="subtitle">Elegant random name picker with beautiful animation</p>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-cog"></i> Configuration</h2>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="names">Names</div>
+                    <div class="tab" data-tab="settings">Settings</div>
+                </div>
+                
+                <div class="tab-content active" id="names-tab">
+                    <div class="input-area">
+                        <textarea id="namesInput" placeholder="Enter names here, one per line\nExample:\nJohn Doe\nJane Smith\nMichael Johnson"></textarea>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button id="updateBtn" class="btn btn-primary">
+                            <i class="fas fa-sync-alt"></i> Update Wheel
+                        </button>
+                        <button id="addRandomBtn" class="btn btn-secondary">
+                            <i class="fas fa-random"></i> Add Random
+                        </button>
+                        <button id="clearBtn" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalNames">0</div>
+                            <div class="stat-label">Total Names</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="remainingNames">0</div>
+                            <div class="stat-label">Remaining</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="selectedCount">0</div>
+                            <div class="stat-label">Selected</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="settings-tab">
+                    <div class="empty-state">
+                        <i class="fas fa-cogs"></i>
+                        <p>Settings panel coming soon</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-trophy"></i> Spin Wheel</h2>
+                </div>
+                
+                <div class="wheel-container">
+                    <canvas id="wheelCanvas"></canvas>
+                    <div class="pointer-container">
+                        <div class="pointer"></div>
+                    </div>
+                </div>
+                
+                <button id="spinBtn" class="btn btn-primary spin-btn" disabled>
+                    <i class="fas fa-play"></i> SPIN WHEEL
+                </button>
+                
+                <div class="result-container">
+                    <div class="result-label">Last Winner:</div>
+                    <div class="result" id="result">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="grid-column: 1 / -1; margin-top: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title"><i class="fas fa-list"></i> Results</h2>
+                <button id="resetBtn" class="btn btn-success">
+                    <i class="fas fa-undo"></i> Reset Selected
+                </button>
+            </div>
+            
+            <div class="list-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <div class="list-title">
+                        <i class="fas fa-users"></i> Remaining Names
+                    </div>
+                    <ul id="namesListUl">
+                        <div class="empty-state">
+                            <i class="fas fa-user-friends"></i>
+                            <p>No names available</p>
+                        </div>
+                    </ul>
+                </div>
+                
+                <div>
+                    <div class="list-title">
+                        <i class="fas fa-trophy"></i> Selected Names
+                    </div>
+                    <ul id="selectedNamesUl">
+                        <div class="empty-state">
+                            <i class="fas fa-star"></i>
+                            <p>No winners yet</p>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inisialisasi variabel
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const namesInput = document.getElementById('namesInput');
+        const updateBtn = document.getElementById('updateBtn');
+        const spinBtn = document.getElementById('spinBtn');
+        const resultDiv = document.getElementById('result');
+        const namesListUl = document.getElementById('namesListUl');
+        const selectedNamesUl = document.getElementById('selectedNamesUl');
+        const addRandomBtn = document.getElementById('addRandomBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const totalNamesEl = document.getElementById('totalNames');
+        const remainingNamesEl = document.getElementById('remainingNames');
+        const selectedCountEl = document.getElementById('selectedCount');
+        
+        let names = [];
+        let selectedNames = [];
+        let segments = [];
+        let spinning = false;
+        let currentRotation = 0;
+        let targetRotation = 0;
+        let spinDuration = 5000; // 5 detik
+        let spinStartTime = 0;
+        let colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
+            '#FF9F40', '#8AC24A', '#F06292', '#7986CB', '#FF7043',
+            '#6c5ce7', '#00cec9', '#fd79a8', '#a29bfe', '#74b9ff'
+        ];
+        
+        // Tab functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+        
+        // Fungsi untuk mengupdate wheel
+        function updateWheel() {
+            const allNames = namesInput.value.split('\n').filter(name => name.trim() !== '');
+            names = allNames.filter(name => !selectedNames.includes(name));
+            
+            updateStats();
+            
+            if (names.length === 0) {
+                spinBtn.disabled = true;
+                drawEmptyWheel();
+                updateNamesList();
+                return;
+            }
+            
+            spinBtn.disabled = false;
+            
+            // Buat segmen untuk wheel
+            segments = names.map((name, index) => ({
+                name: name,
+                color: colors[index % colors.length]
+            }));
+            
+            drawWheel();
+            updateNamesList();
+            updateSelectedNamesList();
+        }
+        
+        function updateStats() {
+            const allNames = namesInput.value.split('\n').filter(name => name.trim() !== '');
+            totalNamesEl.textContent = allNames.length;
+            remainingNamesEl.textContent = names.length;
+            selectedCountEl.textContent = selectedNames.length;
+        }
+        
+        // Fungsi untuk menggambar wheel kosong
+        function drawEmptyWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height/2, canvas.width/2 - 10, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '20px Arial';
+            ctx.fillText('Add names to begin', canvas.width/2, canvas.height/2);
+        }
+        
+        // Fungsi untuk menggambar wheel dengan segmen
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = canvas.width / 2 - 10;
+            const segmentAngle = (Math.PI * 2) / segments.length;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Gambar segmen
+            segments.forEach((segment, index) => {
+                const startAngle = segmentAngle * index + currentRotation;
+                const endAngle = segmentAngle * (index + 1) + currentRotation;
+                
+                // Gambar segmen
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = segment.color;
+                ctx.fill();
+                
+                // Gambar garis pemisah
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + Math.cos(startAngle) * radius, centerY + Math.sin(startAngle) * radius);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Gambar teks
+                ctx.save();
+                ctx.translate(
+                    centerX + Math.cos(startAngle + segmentAngle / 2) * radius * 0.6,
+                    centerY + Math.sin(startAngle + segmentAngle / 2) * radius * 0.6
+                );
+                ctx.rotate(startAngle + segmentAngle / 2 + Math.PI / 2);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                
+                // Potong teks jika terlalu panjang
+                const maxLength = 10;
+                let displayText = segment.name;
+                if (segment.name.length > maxLength) {
+                    displayText = segment.name.substring(0, maxLength) + '...';
+                }
+                
+                ctx.fillText(displayText, 0, 0);
+                ctx.restore();
+            });
+            
+            // Gambar pusat wheel
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            
+            // Gambar efek glossy
+            const gradient = ctx.createRadialGradient(
+                centerX, centerY, 0,
+                centerX, centerY, radius
+            );
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+            gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Fungsi untuk memutar wheel
+        function spinWheel() {
+            if (spinning || segments.length === 0) return;
+            
+            spinning = true;
+            spinBtn.disabled = true;
+            resultDiv.textContent = "-";
+            resultDiv.classList.remove('winner');
+            
+            // Reset highlight di daftar nama
+            const nameItems = namesListUl.querySelectorAll('li');
+            nameItems.forEach(item => {
+                item.classList.remove('highlight');
+            });
+            
+            // Generate target rotation yang benar-benar random menggunakan crypto API
+            const randomBuffer = new Uint32Array(1);
+            window.crypto.getRandomValues(randomBuffer);
+            const randomValue = randomBuffer[0] / 4294967295; // Normalisasi ke 0-1
+            
+            // Putaran minimal 5 putaran, maksimal 10 putaran
+            const extraRotations = 5 + randomValue * 5;
+            targetRotation = currentRotation + Math.PI * 2 * extraRotations;
+            spinStartTime = performance.now();
+            
+            requestAnimationFrame(animateSpin);
+        }
+        
+        // Animasi putaran wheel
+        function animateSpin(timestamp) {
+            if (!spinStartTime) spinStartTime = timestamp;
+            const elapsed = timestamp - spinStartTime;
+            const progress = Math.min(elapsed / spinDuration, 1);
+            
+            // Easing function untuk perlambatan di akhir
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            
+            currentRotation = easeOut * (targetRotation - (currentRotation % (Math.PI * 2))) + (currentRotation % (Math.PI * 2));
+            
+            drawWheel();
+            
+            if (progress < 1) {
+                requestAnimationFrame(animateSpin);
+            } else {
+                finishSpin();
+            }
+        }
+        
+        // Setelah putaran selesai
+        function finishSpin() {
+            spinning = false;
+            
+            // Hitung pemenang berdasarkan pointer di kanan (0 derajat)
+            const normalizedRotation = currentRotation % (Math.PI * 2);
+            const segmentAngle = (Math.PI * 2) / segments.length;
+            
+            // Hitung indeks segmen yang tepat di pointer kanan
+            let winningIndex = Math.floor((normalizedRotation) / segmentAngle) % segments.length;
+            winningIndex = (segments.length - winningIndex - 1) % segments.length;
+            
+            if (segments.length === 0) {
+                spinBtn.disabled = true;
+                return;
+            }
+            
+            // Dapatkan nama pemenang
+            const winner = segments[winningIndex].name;
+            
+            // Tampilkan hasil
+            resultDiv.textContent = winner;
+            resultDiv.classList.add('winner');
+            
+            // Tambahkan ke daftar terpilih
+            selectedNames.push(winner);
+            
+            // Buat efek confetti
+            createConfetti();
+            
+            // Update daftar nama
+            updateWheel();
+            
+            // Highlight nama di daftar terpilih
+            const selectedItems = selectedNamesUl.querySelectorAll('li');
+            if (selectedItems.length > 0) {
+                const lastItem = selectedItems[selectedItems.length - 1];
+                lastItem.classList.add('highlight');
+                lastItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = `${Math.random() * 100}vw`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = `${Math.random() * 10 + 5}px`;
+                    confetti.style.height = `${Math.random() * 10 + 5}px`;
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 30);
+            }
+        }
+        
+        // Update daftar nama tersisa
+        function updateNamesList() {
+            if (names.length === 0) {
+                namesListUl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-friends"></i>
+                        <p>No names available</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            namesListUl.innerHTML = '';
+            names.forEach(name => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                namesListUl.appendChild(li);
+            });
+        }
+        
+        // Update daftar nama terpilih
+        function updateSelectedNamesList() {
+            if (selectedNames.length === 0) {
+                selectedNamesUl.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-star"></i>
+                        <p>No winners yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            selectedNamesUl.innerHTML = '';
+            selectedNames.forEach((name, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. ${name}`;
+                if (index === selectedNames.length - 1) {
+                    li.classList.add('selected-item');
+                }
+                selectedNamesUl.appendChild(li);
+            });
+        }
+        
+        // Tambahkan nama acak untuk demo
+        function addRandomNames() {
+            const randomNames = [
+                'Alice', 'Bob', 'Charlie', 'David', 'Eva', 
+                'Frank', 'Grace', 'Henry', 'Ivy', 'Jack',
+                'Katherine', 'Liam', 'Mia', 'Noah', 'Olivia',
+                'Peter', 'Quinn', 'Rachel', 'Steve', 'Tina',
+                'Uma', 'Victor', 'Wendy', 'Xander', 'Yara',
+                'Zane', 'Ava', 'Benjamin', 'Chloe', 'Daniel'
+            ];
+            
+            // Acak nama menggunakan crypto API
+            const randomBuffer = new Uint32Array(10);
+            window.crypto.getRandomValues(randomBuffer);
+            
+            let namesToAdd = [];
+            for (let i = 0; i < 10; i++) {
+                const randomIndex = randomBuffer[i] % randomNames.length;
+                namesToAdd.push(randomNames[randomIndex] + (i + 1));
+            }
+            
+            const currentNames = namesInput.value;
+            namesInput.value = currentNames + (currentNames ? '\n' : '') + namesToAdd.join('\n');
+            updateWheel();
+        }
+        
+        // Reset nama terpilih
+        function resetSelectedNames() {
+            selectedNames = [];
+            updateSelectedNamesList();
+            updateWheel();
+        }
+        
+        // Event listeners
+        updateBtn.addEventListener('click', updateWheel);
+        spinBtn.addEventListener('click', spinWheel);
+        addRandomBtn.addEventListener('click', addRandomNames);
+        clearBtn.addEventListener('click', () => {
+            namesInput.value = '';
+            resetSelectedNames();
+        });
+        resetBtn.addEventListener('click', resetSelectedNames);
+        
+        // Inisialisasi wheel kosong
+        function init() {
+            canvas.width = 400;
+            canvas.height = 400;
+            drawEmptyWheel();
+            
+            // Load sample names
+            namesInput.value = `John Doe\nJane Smith\nMichael Johnson\nEmily Davis\nRobert Brown\nSarah Wilson\nDavid Taylor\nJennifer Martinez\nWilliam Anderson\nJessica Thomas`;
+            updateWheel();
+        }
+        
+        init();
+    </script>
+</body>
+</html>
